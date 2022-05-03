@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Testing</title>
+<title>RudderStack Testing</title>
 
-<link rel="stylesheet" href="css/atom-one-dark.min.css">
-<script src="js/highlight.min.js"></script>
-<script>hljs.highlightAll();</script>
+<!-- <link rel="stylesheet" href="css/atom-one-dark.min.css"> -->
+<!-- <script src="js/highlight.min.js"></script> -->
+<!-- <script>hljs.highlightAll();</script> -->
 
 <script>
   rudderanalytics = window.rudderanalytics = [];
@@ -39,13 +39,23 @@
   const writeKey = window.localStorage.getItem('RS_writeKey')
   const dataPlane = window.localStorage.getItem('RS_dataplane')
 
-  var rawKey = window.document.location.pathname;
-  var rudderKey = rawKey.substr(rawKey.lastIndexOf("_") + 1).slice(0,-5)
+    // todo: set from query params
+    const qp = () => {
+        let url = location.search;
+        let query = url.substr(1);
+        let ret = {};
+        query.split("&").forEach(function(e) {
+            let parm = e.split('=');
+            ret[parm[0]] = decodeURIComponent(parm[1]);
+          })
+        return ret;
+      }
 
-  const useKey = writeKey ? writeKey : rudderKey
-  const useDataPlane = dataPlane ? dataPlane : 'https://hosted.rudderlabs.com'
+    const { rswk, rsdpurl } = qp()
 
-  rudderanalytics.load(useKey, useDataPlane);
+
+
+    rudderanalytics.load(writeKey, dataPlane);
 
   var items = [];
 
@@ -69,7 +79,7 @@
       }
       console.log('RS AnonymousId ->', rudderanalytics.getAnonymousId())
     } else if (e.type == 'identify') {
-      var id = prompt('Enter you identifier');
+      var id = prompt('Enter your identifier');
       rudderanalytics.identify(id, { name: "First Name" })
       if (e.event == 'form_submit') {
         rudderanalytics.track('form_submit', { form_id: "Demo Request" })
@@ -104,8 +114,8 @@
     pageView()
     console.log('Sending AutoPlay Event', playCount)
     playCount += 1
-    playing = setTimeout( "startPlay( )", 1000 )
-    if (playCount > 100) { stopPlay()  }
+    playing = setTimeout( "startPlay( )", 1000)
+    if (playCount > 100) { stopPlay() }
   }
 
   const stopPlay = () => {
@@ -135,10 +145,18 @@
 
   const setKeyOnDOM = () => {
     let storageKey = window.localStorage.getItem('RS_writeKey')
+    let storageDP = window.localStorage.getItem('RS_dataplane')
     document.getElementById('current-key').innerHTML = storageKey
+    document.getElementById('current-dp').innerHTML = storageDP
+    document.getElementById('key-input').value = storageKey
+    document.getElementById('dataplane-input').value = storageDP
   }
 
   const doReload = () => { location.reload() }
+
+    const changeContent = (newBlock) => {
+        document.getElementById('codeBlock').innerHTML = newBlock
+    }
 
 
 </script>
@@ -149,16 +167,20 @@
 
 <style>
 
-#current-key {
-  font-weight: 800;
-}
-.lds-ellipsis {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 44px;
+      #current-key, #current-dp {
+        font-weight: 800;
+      }
 
-}
+      .scroll {
+        padding-top: 400px
+      }
+
+      .lds-ellipsis {
+        display: inline-block;
+        position: relative;
+        width: 80px;
+        height: 44px;
+      }
       .lds-ellipsis div {
         position: absolute;
         top: 33px;
@@ -167,76 +189,78 @@
         border-radius: 50%;
         background: #C0C0C0;
         animation-timing-function: cubic-bezier(0, 1, 1, 0);
-
       }
       .lds-ellipsis div:nth-child(1) {
         left: 8px;
         animation: lds-ellipsis1 0.6s infinite;
-
       }
       .lds-ellipsis div:nth-child(2) {
         left: 8px;
         animation: lds-ellipsis2 0.6s infinite;
-
       }
       .lds-ellipsis div:nth-child(3) {
         left: 32px;
         animation: lds-ellipsis2 0.6s infinite;
-
       }
       .lds-ellipsis div:nth-child(4) {
         left: 56px;
         animation: lds-ellipsis3 0.6s infinite;
-
       }
       @keyframes lds-ellipsis1 {
         0% {
           transform: scale(0);
-
         }
         100% {
           transform: scale(1);
-
         }
-
       }
       @keyframes lds-ellipsis3 {
         0% {
           transform: scale(1);
-
         }
         100% {
           transform: scale(0);
-
         }
-
       }
       @keyframes lds-ellipsis2 {
         0% {
           transform: translate(0, 0);
-
         }
         100% {
           transform: translate(24px, 0);
-
         }
-
       }
+
       .hidden {
           display: none;
+      }
 
+      @keyframes highlight {
+        0% {
+          background: red
+        }
+        100% {
+          background: none;
+        }
+      }
+
+      #highlight:target {
+        animation: highlight 1s;
       }
 </style>
 </head>
 
-<body onScroll="sendEvent({type: 'track', event: 'scroll'})" style="height: 1000vh">
+<body onScroll="sendEvent({type: 'track', event: 'scroll'})" style="height: 300vh">
   <main>
 
     <div id="key-entry"><form onSubmit="addKey(event)">Write Key: <input id="key-input" type="text" /> Dataplane URL: <input id="dataplane-input" type="text"><input type="Submit"></form></div>
 
   <div id="body">
-    <h1>Testing</h1>
-    <div><span>You're using writeKey: </span><span id="current-key"></span> <span onClick="toggleWriteKey()">(Click here to change)<span></div>
+    <h1>RudderStack Testing</h1>
+    <div><span>You're using:</span><br />
+      writeKey <span id="current-key"></span><br />
+      dataPlane <span id="current-dp"></span><br />
+      <span onClick="toggleWriteKey()">(Click here to change)<span></div><br />
 
     <div>
       <button onClick="sendEvent({type: 'track', event: 'event_key'})">Track Event</button>
@@ -259,18 +283,43 @@
       </div>
 
     <div>
-      <button id="start-button" onClick="autoPlay()">Start AutoRun</button>
-      <button id="stop-button" onClick="stopPlay()" disabled>Stop AutoRun</button>
+      <button id="start-button" onClick="autoPlay()">Start auto send page events</button>
+      <button id="stop-button" onClick="stopPlay()" disabled>Stop auto send page events</button>
       <div id="running-loader" class="hidden lds-ellipsis"><div></div><div></div><div></div><div></div></div>
     </div>
-    <div >You scrolled</div>
-    <div><pre><code class="language-javascript">
-!function(){var e=window.rudderanalytics=window.rudderanalytics||[];e.methods=["load","page","track","identify","alias","group","ready","reset","getAnonymousId","setAnonymousId"],e.factory=function(t){return function(){var r=Array.prototype.slice.call(arguments);return r.unshift(t),e.push(r),e}};for(var t=0;t<e.methods.length;t++){var r=e.methods[t];e[r]=e.factory(r)}e.loadJS=function(e,t){var r=document.createElement("script");r.type="text/javascript",r.async=!0,r.src="https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(r,a)},e.loadJS(),
-e.load(),
-e.page()}();
-                    <span>hey</span>
 
-    </code></pre></div>
+    <div class="scroll">Tracking Scroll...</div>
+    <div class="scroll">Tracking Scroll...</div>
+    <div class="scroll">Tracking Scroll...</div>
+    <div class="scroll">Tracking Scroll...</div>
+  <!-- rudderanalytics = window.rudderanalytics = []; -->
+
+  <!-- var  methods = [ -->
+  <!--   "load", -->
+  <!--   "page", -->
+  <!--   "track", -->
+  <!--   "identify", -->
+  <!--   "alias", -->
+  <!--   "group", -->
+  <!--   "ready", -->
+  <!--   "reset", -->
+  <!--   "getAnonymousId", -->
+  <!--   "setAnonymousId" -->
+  <!-- ]; -->
+
+  <!-- for (var i = 0; i &lt; methods.length; i++) { -->
+  <!--   var method = methods[i]; -->
+  <!--   rudderanalytics[method] = function (methodName) { -->
+  <!--     return function () { -->
+  <!--       rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments))); -->
+  <!--     }; -->
+  <!--   }(method); -->
+  <!-- } -->
+
+
+    <!-- <div><pre><code id="codeBlock" onclick="changeContent(this) "class="language-javascript"> -->
+<!-- rudderanalytics.load(), -->
+    <!-- </code></pre></div> -->
   </div>
   </main>
 
