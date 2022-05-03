@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Testing</title>
+
+<link rel="stylesheet" href="css/atom-one-dark.min.css">
+<script src="js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+
+<script>
+  rudderanalytics = window.rudderanalytics = [];
+
+  var  methods = [
+    "load",
+    "page",
+    "track",
+    "identify",
+    "alias",
+    "group",
+    "ready",
+    "reset",
+    "getAnonymousId",
+    "setAnonymousId"
+  ];
+
+  for (var i = 0; i < methods.length; i++) {
+    var method = methods[i];
+    rudderanalytics[method] = function (methodName) {
+      return function () {
+        rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
+      };
+    }(method);
+  }
+
+  // set your writeKey here or use the filename /demo_writekey.html
+
+  // const writeKey = "1iYTYFYkfteuXxTj3eEt5CmeLvO"
+
+  const writeKey = window.localStorage.getItem('RS_writeKey')
+  const dataPlane = window.localStorage.getItem('RS_dataplane')
+
+  var rawKey = window.document.location.pathname;
+  var rudderKey = rawKey.substr(rawKey.lastIndexOf("_") + 1).slice(0,-5)
+
+  const useKey = writeKey ? writeKey : rudderKey
+  const useDataPlane = dataPlane ? dataPlane : 'https://hosted.rudderlabs.com'
+
+  rudderanalytics.load(useKey, useDataPlane);
+
+  var items = [];
+
+  var pages = [
+    'Home Page',
+    'Item - Something cool to buy',
+    'Category - Shirts',
+    'Landing Page - Competitor Comparison',
+    'Video Library',
+    'Demo Request',
+    'Contact Us'
+  ]
+
+  var sendEvent = (e) => {
+    console.log('RS Event ->', e) ;
+    if (e.type == 'track') {
+      if (e.event == 'purchase') {
+        rudderanalytics.track('purchase', {items: items})
+      } else {
+        rudderanalytics.track(e.event)
+      }
+      console.log('RS AnonymousId ->', rudderanalytics.getAnonymousId())
+    } else if (e.type == 'identify') {
+      var id = prompt('Enter you identifier');
+      rudderanalytics.identify(id, { name: "First Name" })
+      if (e.event == 'form_submit') {
+        rudderanalytics.track('form_submit', { form_id: "Demo Request" })
+      }
+    } else if (e.type == 'reset') {
+      rudderanalytics.reset()
+      console.log('RS User Logout')
+      console.log('RS AnonymousId ->', rudderanalytics.getAnonymousId())
+    } else if (e.type == 'custom') {
+      eventKey = document.getElementById('customEvent').value
+      if (eventKey !== '') { rudderanalytics.track(eventKey) } else { rudderanalytics.track('custom event key not provided') }
+    } else if (e.type == 'page') {
+      pageView()
+    }
+  }
+
+  const pageView = () => {
+    rudderanalytics.page(pages[Math.floor(Math.random() * 7)])
+  }
+
+  let playing;
+  let playCount = 1
+
+  const autoPlay = () => {
+    document.getElementById('stop-button').toggleAttribute('disabled')
+    document.getElementById('start-button').toggleAttribute('disabled')
+    document.getElementById('running-loader').classList.remove('hidden')
+    startPlay()
+  }
+
+  const startPlay = () => {
+    pageView()
+    console.log('Sending AutoPlay Event', playCount)
+    playCount += 1
+    playing = setTimeout( "startPlay( )", 1000 )
+    if (playCount > 100) { stopPlay()  }
+  }
+
+  const stopPlay = () => {
+    document.getElementById('stop-button').toggleAttribute('disabled')
+    document.getElementById('start-button').toggleAttribute('disabled')
+    document.getElementById('running-loader').classList.add('hidden')
+    clearTimeout(playing);
+    playCount = 1
+  }
+
+  const addKey = (e) => {
+    e.preventDefault()
+    const inputKey = document.getElementById('key-input').value
+    const inputDataplane = document.getElementById('dataplane-input').value
+    if (inputKey !== '') { window.localStorage.setItem('RS_writeKey', inputKey) }
+    if (inputDataplane !== '') { window.localStorage.setItem('RS_dataplane', inputDataplane) }
+    document.getElementById('key-entry').classList.add("hidden")
+    document.getElementById('body').classList.remove("hidden")
+    setKeyOnDOM()
+    doReload()
+  }
+
+  const toggleWriteKey = () => {
+    document.getElementById('key-entry').classList.remove("hidden")
+    document.getElementById('body').classList.add("hidden")
+  }
+
+  const setKeyOnDOM = () => {
+    let storageKey = window.localStorage.getItem('RS_writeKey')
+    document.getElementById('current-key').innerHTML = storageKey
+  }
+
+  const doReload = () => { location.reload() }
+
+
+</script>
+
+<script defer src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/mvp.css">
+
+<style>
+
+#current-key {
+  font-weight: 800;
+}
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 44px;
+
+}
+      .lds-ellipsis div {
+        position: absolute;
+        top: 33px;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: #C0C0C0;
+        animation-timing-function: cubic-bezier(0, 1, 1, 0);
+
+      }
+      .lds-ellipsis div:nth-child(1) {
+        left: 8px;
+        animation: lds-ellipsis1 0.6s infinite;
+
+      }
+      .lds-ellipsis div:nth-child(2) {
+        left: 8px;
+        animation: lds-ellipsis2 0.6s infinite;
+
+      }
+      .lds-ellipsis div:nth-child(3) {
+        left: 32px;
+        animation: lds-ellipsis2 0.6s infinite;
+
+      }
+      .lds-ellipsis div:nth-child(4) {
+        left: 56px;
+        animation: lds-ellipsis3 0.6s infinite;
+
+      }
+      @keyframes lds-ellipsis1 {
+        0% {
+          transform: scale(0);
+
+        }
+        100% {
+          transform: scale(1);
+
+        }
+
+      }
+      @keyframes lds-ellipsis3 {
+        0% {
+          transform: scale(1);
+
+        }
+        100% {
+          transform: scale(0);
+
+        }
+
+      }
+      @keyframes lds-ellipsis2 {
+        0% {
+          transform: translate(0, 0);
+
+        }
+        100% {
+          transform: translate(24px, 0);
+
+        }
+
+      }
+      .hidden {
+          display: none;
+
+      }
+</style>
+</head>
+
+<body onScroll="sendEvent({type: 'track', event: 'scroll'})" style="height: 1000vh">
+  <main>
+
+    <div id="key-entry"><form onSubmit="addKey(event)">Write Key: <input id="key-input" type="text" /> Dataplane URL: <input id="dataplane-input" type="text"><input type="Submit"></form></div>
+
+  <div id="body">
+    <h1>Testing</h1>
+    <div><span>You're using writeKey: </span><span id="current-key"></span> <span onClick="toggleWriteKey()">(Click here to change)<span></div>
+
+    <div>
+      <button onClick="sendEvent({type: 'track', event: 'event_key'})">Track Event</button>
+      <button onClick="sendEvent({type: 'track', event: 'purchase'})">Track Event: Purchase</button>
+    </div>
+
+    <div>
+      <button onClick="sendEvent({type: 'identify'})">Identify</button>
+      <button onClick="sendEvent({type: 'identify', event: 'form_submit'})">Identify and Form Submit</button>
+      <button onClick="sendEvent({type: 'reset'})">Reset (logout)</button>
+    </div>
+
+    <div>
+      <button onClick="sendEvent({type: 'page'})">Page</button>
+    <div>
+
+      <div>
+        <button onClick="sendEvent({type: 'custom'})">Send custom event:</button>
+        <input id='customEvent' placeholder="event_name" />
+      </div>
+
+    <div>
+      <button id="start-button" onClick="autoPlay()">Start AutoRun</button>
+      <button id="stop-button" onClick="stopPlay()" disabled>Stop AutoRun</button>
+      <div id="running-loader" class="hidden lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+    </div>
+    <div >You scrolled</div>
+    <div><pre><code class="language-javascript">
+!function(){var e=window.rudderanalytics=window.rudderanalytics||[];e.methods=["load","page","track","identify","alias","group","ready","reset","getAnonymousId","setAnonymousId"],e.factory=function(t){return function(){var r=Array.prototype.slice.call(arguments);return r.unshift(t),e.push(r),e}};for(var t=0;t<e.methods.length;t++){var r=e.methods[t];e[r]=e.factory(r)}e.loadJS=function(e,t){var r=document.createElement("script");r.type="text/javascript",r.async=!0,r.src="https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(r,a)},e.loadJS(),
+e.load(),
+e.page()}();
+                    <span>hey</span>
+
+    </code></pre></div>
+  </div>
+  </main>
+
+  <script>
+    (function() {
+      if (window.localStorage.getItem('RS_writeKey') && window.localStorage.getItem('RS_dataplane')) {
+        document.getElementById('key-entry').classList.add("hidden")
+        setKeyOnDOM()
+      }
+    })();
+  </script>
+</body>
+</html>
