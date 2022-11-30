@@ -8,6 +8,8 @@
 <!-- <script>hljs.highlightAll();</script> -->
 
 <script>
+
+  document.addEventListener('submit', (e) => { console.log('submit...') })
   rudderanalytics = window.rudderanalytics = [];
 
   var  methods = [
@@ -84,6 +86,13 @@
       if (e.event == 'form_submit') {
         rudderanalytics.track('form_submit', { form_id: "Demo Request" })
       }
+
+
+      } else if (e.type == 'identifytraits') {
+          let id = prompt("Enter your identifier")
+        let traits = getTraits()
+        rudderanalytics.identify(id, traits)
+
     } else if (e.type == 'reset') {
       rudderanalytics.reset()
       console.log('RS User Logout')
@@ -158,6 +167,14 @@
         document.getElementById('codeBlock').innerHTML = newBlock
     }
 
+    const getTraits = () => {
+      let k1 = document.getElementById('cT1k').value
+      let v1 = document.getElementById('cT1v').value
+      let k2 = document.getElementById('cT2k').value
+      let v2 = document.getElementById('cT2v').value
+
+      return { k1: v1, k2: v2 }
+    }
 
 </script>
 
@@ -166,6 +183,10 @@
 <link rel="stylesheet" href="https://unpkg.com/mvp.css">
 
 <style>
+
+input {
+  display: inline;
+}
 
       #current-key, #current-dp {
         font-weight: 800;
@@ -271,6 +292,14 @@
       <button onClick="sendEvent({type: 'identify'})">Identify</button>
       <button onClick="sendEvent({type: 'identify', event: 'form_submit'})">Identify and Form Submit</button>
       <button onClick="sendEvent({type: 'reset'})">Reset (logout)</button>
+    </div>
+
+    <div>
+      <button onClick="sendEvent({type: 'identifytraits'})">Identify w/ traits</button>
+      <br />
+      <input id='cT1k' placeholder="Key 1"> <input id="cT1v" placeholder="Value 1">
+      <br />
+      <input id='cT2k' placeholder="Key 2"> <input id="cT2v" placeholder="Value 2">
     </div>
 
     <div>
