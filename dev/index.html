@@ -172,9 +172,12 @@
       let v1 = document.getElementById('cT1v').value
       let k2 = document.getElementById('cT2k').value
       let v2 = document.getElementById('cT2v').value
+        let traits = {}
+        traits[k1] = v1
+        traits[k2] = v2
+        return traits
 
-      return { k1: v1, k2: v2 }
-    }
+      }
 
 </script>
 
