@@ -101,6 +101,15 @@
       rudderanalytics.page(pages[Math.floor(Math.random() * 7)])
     }
 ​
+    const setKeyOnDOM = () => {
+      let storageKey = window.localStorage.getItem('RS_writeKey')
+      let storageDP = window.localStorage.getItem('RS_dataplane')
+      document.getElementById('current-key').innerHTML = storageKey
+      document.getElementById('current-dp').innerHTML = storageDP
+      document.getElementById('key-input').value = storageKey
+      document.getElementById('dataplane-input').value = storageDP
+    }
+​
     const addKey = (e) => {
       e.preventDefault()
       const inputKey = document.getElementById('key-input').value
@@ -117,15 +126,7 @@
       document.getElementById('key-entry').classList.remove("hidden")
       document.getElementById('body').classList.add("hidden")
     }
-​
-    const setKeyOnDOM = () => {
-      let storageKey = window.localStorage.getItem('RS_writeKey')
-      let storageDP = window.localStorage.getItem('RS_dataplane')
-      document.getElementById('current-key').innerHTML = storageKey
-      document.getElementById('current-dp').innerHTML = storageDP
-      document.getElementById('key-input').value = storageKey
-      document.getElementById('dataplane-input').value = storageDP
-    }
+
 ​
     const doReload = () => {location.reload()}
 ​
