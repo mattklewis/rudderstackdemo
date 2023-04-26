@@ -2,7 +2,7 @@
 <html>
 ​
 <head>
-  <title>RudderStack Demo -- Props to MChoi and RMcCrary</title>
+  <title>RudderStack Demo</title>
 ​
   <script>
 ​
@@ -101,7 +101,7 @@
       rudderanalytics.page(pages[Math.floor(Math.random() * 7)])
     }
 ​
-    const addKey = () => {
+    const addKey = (e) => {
       e.preventDefault()
       const inputKey = document.getElementById('key-input').value
       const inputDataplane = document.getElementById('dataplane-input').value
